@@ -1,6 +1,21 @@
-#define NUM_LEDS 8
+//Tweak these according to servo speed
+#define OPEN_DURATION 1000
+#define CLOSE_STOP_DELAY 100
+#define MAX_ROTATION 50
+
 #define CENTER_ANGLE 90
 #define STATIONARY_ANGLE 110
+#define NUM_LEDS 8
+
+#define ACCEL_MEASUREMENTS 5
+
+#define GFORCE_PICKED_UP_MIN 8
+#define GFORCE_PICKED_UP_MAX 12
+#define GFORCE_STEADY_MIN 9.5
+#define GFORCE_STEADY_MAX 10.5
+#define TIPPED_OVER_Z_TRESHOLD 5
+
+// #define USE_AUDIO 0
 
 #define FREQ 50           // one clock is 20 ms
 #define FREQ_MINIMUM 205  // 1ms is 1/20, of 4096
@@ -13,8 +28,7 @@
 #define MOTION_SENSOR_PIN 17
 #define CENTER_LED_PIN 4
 #define RING_LED_PIN 14
-#define LIGHTS_RIGHT_PIN 0
-#define LIGHTS_LEFT_PIN 2
+#define GUNS_LED_PIN 0
 #define ROTATE_SERVO_PIN 22
 #define WING_SERVO_PIN 19
 #define WING_SWITCH_PIN 24

@@ -1,6 +1,10 @@
+#ifndef STATE_BEHAVIOUR_H
+#define STATE_BEHAVIOUR_H
+
 #include <Arduino.h>
 
 #include "consts.h"
+#include "externs.h"
 #include "routines.h"
 #include "utils.h"
 
@@ -27,20 +31,21 @@ enum class ManualState {
 
 class TurretStateBehaviour {
  public:
+  void init();
+  void update();
+
   void setState(TurretState nextState);
   void setManualState(ManualState nextState);
+  void manualRotation(unsigned long deltaTime);
 
   TurretMode currentTurretMode;
   bool wasOpen;
   bool wingsOpen;
+  bool needsSetup;
+  int diagnoseAction = -1;
+  bool diagnoseMode = false;
 
  private:
-  void manualRotation(unsigned long deltaTime);
-  void stateBehaviour();
-
-  // bool alarm;
-  bool shouldUpdate = false;
-
   TurretState currentState = TurretState::Idle;
   ManualState currentManualState = ManualState::Idle;
 
@@ -50,3 +55,7 @@ class TurretStateBehaviour {
   unsigned long stateStartTime = 0;
   unsigned long lastMovementTime = 0;
 };
+
+TurretStateBehaviour state;
+
+#endif

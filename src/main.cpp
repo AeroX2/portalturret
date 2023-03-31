@@ -1,60 +1,46 @@
+// General
 #include "Arduino.h"
-#include "LittleFS.h"
-#include <Adafruit_PWMServoDriver.h>
-#include <FastLED.h>
-#include <Wire.h>
 
-// #include <WiFiManager.h>
-#include <ESPAsync_WiFiManager_Lite.h>
+// Network
 #include <AsyncElegantOTA.h>
-#include <FS.h>
+#include <ESPAsync_WiFiManager_Lite.h>
 // #include <WebSocketsServer.h>
 
+// Storage
+// #include "LittleFS.h"
+
+// Routines
+#include <AceRoutine.h>
+
+// Devices
+#include <FastLED.h>
+// #include "DFRobotDFPlayerMini.h"
+
 #include "consts.h"
-#include "accelerometer.h"
+#include "externs.h"
 #include "statebehaviour.h"
 
 using namespace ace_routine;
-
-CRGB leds[NUM_LEDS];
-
-// SoftwareSerial mySoftwareSerial(D5, D6);  // RX, TX
-// DFRobotDFPlayerMini myDFPlayer;
-
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
-AsyncWebServer server = AsyncWebServer(80);
-// DNSServer dns;
-// WebSocketsServer webSocket = WebSocketsServer(81);
-// AsyncWiFiManager wifiManager(&server, &dns);
 
 bool websocketStarted;
 unsigned long nextWebSocketUpdateTime = 0;
 
 int currentMoveSpeed = 0;
-TurretStateBehaviour state;
 
-void preloader(uint8_t led) {
-  FastLED.clear();
-  leds[led] = CRGB(255, 0, 0);
-  FastLED.show();
+void updateLEDPreloader() {
+  int t = floor(millis() / 10);
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB((i + t) % 8 == 0 ? 255 : 0, 0, 0);
+    FastLED.show();
+  }
 }
 
 void setup() {
-  pwm.begin();
-  pwm.setPWMFreq(FREQ);
-  pwm.setPWM(ROTATE_SERVO_PIN, 0, map(90, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
-  pwm.setPWM(WING_SERVO_PIN, 0,
-             map(STATIONARY_ANGLE, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
-  pwm.setPWM(CENTER_LED_PIN, 4096, 0);
-
-  Serial.begin(19200);
+  Serial.begin(9600);
 
   Serial.println("Trying WifiManager");
   ESPAsync_WiFiManager_Lite* wifiManager = new ESPAsync_WiFiManager_Lite();
   wifiManager->begin();
-
-  // if (isConnected) {
 
   FastLED.addLeds<WS2812, RING_LED_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(84);
@@ -63,55 +49,53 @@ void setup() {
     FastLED.show();
   }
 
-  // currentState = TurretState::Idle;
-  // currentManualState = ManualState::Idle;
-  // currentTurretMode = TurretMode::Automatic;
+  pinMode(GUNS_LED_PIN, OUTPUT);
 
-  pinMode(WING_SWITCH_PIN, INPUT);
-  // pinMode(D7, INPUT);
+  wingServo.attach(WING_SERVO_PIN);
+  rotateServo.attach(ROTATE_SERVO_PIN);
+
+  rotateServo.write(90);
+  delay(250);
+  wingServo.write(STATIONARY_ANGLE + 90);
+  while (isOpen()) {
+    delay(10);
+  }
+  delay(CLOSE_STOP_DELAY);
+  wingServo.write(STATIONARY_ANGLE);
+
+  pinMode(WING_SWITCH_PIN, INPUT_PULLUP);
+
+  updateLEDPreloader();
 
   state.wasOpen = isOpen();
 
-  preloader(0);
-
-  Serial.println(WiFi.localIP());
-
   AsyncElegantOTA.begin(&server);
 
-  // MDNS.begin("portal");
-  // MDNS.addService("http", "tcp", 80);
-
-  // Initialize LittleFS
-  if (!LittleFS.begin()) {
-    Serial.println("An Error has occurred while mounting LittleFS");
-    return;
-  }
-  preloader(1);
+  updateLEDPreloader();
 
   // startWebServer();
-  preloader(2);
-
   // startWebSocket();
-  preloader(3);
+  accelerometer.setup();
 
-  setupAccelerometer();
+  updateLEDPreloader();
 
-  preloader(4);
+  updateLEDPreloader();
 
-  // delay(1000);
-  // myDFPlayer.volume(15);
+#ifdef USE_AUDIO
+  mySoftwareSerial.begin(9600);
+  delay(200);
+  myDFPlayerSetup = myDFPlayer.begin(mySoftwareSerial);
+  if (myDFPlayerSetup) myDFPlayer.volume(15);
+#endif
 
-  preloader(5);
-
-  preloader(6);
+  updateLEDPreloader();
 
   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB(255, 0, 0);
     FastLED.show();
   }
 
-  // previousTime = millis();
-  //}
+  state.init();
 }
 
 void loop() {
@@ -121,12 +105,61 @@ void loop() {
 
   // webSocket.loop();
 
-  // stateBehaviour();
+  if (!state.diagnoseMode) {
+    state.update();
+  } else {
+    switch (state.diagnoseAction) {
+      case 0:
+        wingServo.write(STATIONARY_ANGLE - 90);
+        delay(250);
+        wingServo.write(STATIONARY_ANGLE);
+        break;
+      case 1:
+        wingServo.write(STATIONARY_ANGLE + 90);
+        delay(250);
+        wingServo.write(STATIONARY_ANGLE);
+        break;
+      case 2:
+        rotateServo.write(50);
+        delay(1000);
+        rotateServo.write(90);
+        break;
+      case 3:
+        rotateServo.write(130);
+        delay(1000);
+        rotateServo.write(90);
+        break;
+      case 4:
+        analogWrite(GUNS_LED_PIN, 255);
+        delay(1000);
+        analogWrite(GUNS_LED_PIN, 0);
+        break;
+      case 5:
+        fill_solid(leds, NUM_LEDS, CRGB::Red);
+        FastLED.show();
+        delay(1000);
+        fill_solid(leds, NUM_LEDS, CRGB::Green);
+        FastLED.show();
+        delay(1000);
+        fill_solid(leds, NUM_LEDS, CRGB::Blue);
+        FastLED.show();
+        delay(1000);
+        fill_solid(leds, NUM_LEDS, CRGB::Black);
+        FastLED.show();
+        break;
+#ifdef USE_AUDIO
+      case 6:
+        myDFPlayer.playFolder(1, random(1, 9));
+        break;
+#endif
+    }
+    state.diagnoseAction = -1;
+  }
 
   if (currentMoveSpeed > 0 && state.wasOpen && !state.wingsOpen) {
     currentMoveSpeed = 0;
-    pwm.setPWM(WING_SERVO_PIN, 0,
-               map(STATIONARY_ANGLE, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
+    delay(CLOSE_STOP_DELAY);
+    wingServo.write(STATIONARY_ANGLE);
   }
 
   state.wasOpen = state.wingsOpen;
@@ -157,97 +190,4 @@ void loop() {
   //   };
   //   webSocket.broadcastBIN(values, 12);
   // }
-}
-
-void startWebServer(AsyncWebServer server) {
-  server.serveStatic("/", LittleFS, "/");
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(LittleFS, "index.html", String(), false, processor);
-  });
-
-  server.onNotFound([](AsyncWebServerRequest *request) {
-    if (request->method() == HTTP_OPTIONS) {
-      request->send(200);
-    } else {
-      request->send(404);
-    }
-  });
-
-  server.on("/set_mode", HTTP_POST, [](AsyncWebServerRequest *request) {
-    if (request->hasParam("mode", true)) {
-      AsyncWebParameter *modeParam = request->getParam("mode", true);
-      state.currentTurretMode = (TurretMode)modeParam->value().toInt();
-      currentRotateAngle = 90;
-      request->send(200, "text/html", "State set");
-    } else {
-      request->send(200, "text/html", "Failed to set mode");
-    }
-  });
-
-  server.on("/set_state", HTTP_POST, [](AsyncWebServerRequest *request) {
-    if (request->hasParam("state", true)) {
-      AsyncWebParameter *stateParam = request->getParam("state", true);
-      int state = stateParam->value().toInt();
-      // setState((TurretState)state);
-      request->send(200, "text/html", "State set");
-    } else {
-      request->send(200, "text/html", "No state sent");
-    }
-  });
-
-  server.on("/set_open", HTTP_POST, [](AsyncWebServerRequest *request) {
-    if (state.currentTurretMode == TurretMode::Manual) {
-      if (request->hasParam("open", true)) {
-        AsyncWebParameter *openParam = request->getParam("open", true);
-        if (openParam->value().toInt() == 1) {
-          state.setManualState(ManualState::Opening);
-          request->send(200, "text/html", "Opening");
-        } else {
-          state.setManualState(ManualState::Closing);
-          request->send(200, "text/html", "Closing");
-        }
-      } else {
-        request->send(200, "text/html", "No state sent");
-      }
-    } else {
-      request->send(200, "text/html", "Not in Manual mode");
-    }
-  });
-
-  server.on("/set_angle", HTTP_POST, [](AsyncWebServerRequest *request) {
-    Serial.println("Set angle request");
-    if (request->hasParam("angle", true)) {
-      AsyncWebParameter *angleParam = request->getParam("angle", true);
-      AsyncWebParameter *servoParam = request->getParam("servo", true);
-      int angle = angleParam->value().toInt();
-      int servo = servoParam->value().toInt();
-      currentMoveSpeed = angle;
-      if (servo == 0) {
-        pwm.setPWM(
-            WING_SERVO_PIN, 0,
-            map(STATIONARY_ANGLE + angle, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
-      } else {
-        pwm.setPWM(ROTATE_SERVO_PIN, 0,
-                   map(90 + angle, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
-      }
-
-      request->send(200, "text/html", "Angle set");
-    } else {
-      request->send(200, "text/html", "No angle sent");
-    }
-  });
-
-  // server.on("/reset_wifi", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   wifiManager.resetSettings();
-  //   WiFi.disconnect();
-  //   request->send(200, "text/html", "Wifi reset");
-  // });
-
-  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "*");
-  server.begin();
-}
-
-String processor(const String &var) {
-  if (var == "IP") return WiFi.localIP().toString();
-  return String();
 }
