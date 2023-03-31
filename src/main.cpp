@@ -34,9 +34,6 @@ unsigned long nextWebSocketUpdateTime = 0;
 int currentMoveSpeed = 0;
 TurretStateBehaviour state;
 
-bool isOpen() { return digitalRead(WING_SWITCH) == HIGH; }
-bool isPlayingAudio() { return analogRead(A0) < 512; }
-
 void preloader(uint8_t led) {
   FastLED.clear();
   leds[led] = CRGB(255, 0, 0);
@@ -46,10 +43,10 @@ void preloader(uint8_t led) {
 void setup() {
   pwm.begin();
   pwm.setPWMFreq(FREQ);
-  pwm.setPWM(ROTATE_SERVO, 0, map(90, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
-  pwm.setPWM(WING_SERVO, 0,
+  pwm.setPWM(ROTATE_SERVO_PIN, 0, map(90, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
+  pwm.setPWM(WING_SERVO_PIN, 0,
              map(STATIONARY_ANGLE, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
-  pwm.setPWM(CENTER_LED, 4096, 0);
+  pwm.setPWM(CENTER_LED_PIN, 4096, 0);
 
   Serial.begin(19200);
 
@@ -59,7 +56,7 @@ void setup() {
 
   // if (isConnected) {
 
-  FastLED.addLeds<WS2812, RING_LED, GRB>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812, RING_LED_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(84);
   for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB(0, 0, 0);
@@ -70,7 +67,7 @@ void setup() {
   // currentManualState = ManualState::Idle;
   // currentTurretMode = TurretMode::Automatic;
 
-  pinMode(WING_SWITCH, INPUT);
+  pinMode(WING_SWITCH_PIN, INPUT);
   // pinMode(D7, INPUT);
 
   state.wasOpen = isOpen();
@@ -128,7 +125,7 @@ void loop() {
 
   if (currentMoveSpeed > 0 && state.wasOpen && !state.wingsOpen) {
     currentMoveSpeed = 0;
-    pwm.setPWM(WING_SERVO, 0,
+    pwm.setPWM(WING_SERVO_PIN, 0,
                map(STATIONARY_ANGLE, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
   }
 
@@ -227,10 +224,10 @@ void startWebServer(AsyncWebServer server) {
       currentMoveSpeed = angle;
       if (servo == 0) {
         pwm.setPWM(
-            WING_SERVO, 0,
+            WING_SERVO_PIN, 0,
             map(STATIONARY_ANGLE + angle, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
       } else {
-        pwm.setPWM(ROTATE_SERVO, 0,
+        pwm.setPWM(ROTATE_SERVO_PIN, 0,
                    map(90 + angle, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
       }
 

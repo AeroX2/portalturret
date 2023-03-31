@@ -2,6 +2,7 @@
 
 #include "consts.h"
 #include "routines.h"
+#include "utils.h"
 
 enum class TurretMode { Automatic = 0, Manual = 1 };
 
@@ -48,4 +49,4 @@ class TurretStateBehaviour {
   unsigned long previousTime = 0;
   unsigned long stateStartTime = 0;
   unsigned long lastMovementTime = 0;
-}
+};

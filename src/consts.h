@@ -11,11 +11,10 @@
 #define ACCELEROMETER_PIN_Z 34
 
 #define MOTION_SENSOR_PIN 17
-
-#define CENTER_LED 4
-#define RING_LED 14
-#define GUN_RIGHT 0
-#define GUN_LEFT 2
-#define ROTATE_SERVO 22
-#define WING_SERVO 19
-#define WING_SWITCH 24
+#define CENTER_LED_PIN 4
+#define RING_LED_PIN 14
+#define LIGHTS_RIGHT_PIN 0
+#define LIGHTS_LEFT_PIN 2
+#define ROTATE_SERVO_PIN 22
+#define WING_SERVO_PIN 19
+#define WING_SWITCH_PIN 24

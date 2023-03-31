@@ -85,7 +85,7 @@ void TurretStateBehaviour::stateBehaviour() {
     }
   }
   if (currentTurretMode == TurretMode::Automatic) {
-    bool motionDetected = digitalRead(MOTION_SENSOR_PIN) == HIGH;
+    bool motionDetected = isMotionDetected();
     float zMovement = (smoothZ / measurements * SENSORS_GRAVITY_STANDARD *
                        ADXL345_MG2G_MULTIPLIER);
     bool pickedUp = accelerometerBuffered && (zMovement < 8 || zMovement > 12);

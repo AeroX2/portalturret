@@ -66,10 +66,10 @@
 //       currentMoveSpeed = angle;
 //       if (servo == 0) {
 //         pwm.setPWM(
-//             WING_SERVO, 0,
+//             WING_SERVO_PIN, 0,
 //             map(STATIONARY_ANGLE + angle, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
 //       } else {
-//         pwm.setPWM(ROTATE_SERVO, 0,
+//         pwm.setPWM(ROTATE_SERVO_PIN, 0,
 //                    map(90 + angle, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
 //       }
 

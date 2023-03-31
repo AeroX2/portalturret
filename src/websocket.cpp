@@ -21,7 +21,7 @@
 //       switch (payload[0]) {
 //         case 0:
 //           if (isOpen()) {
-//             pwm.setPWM(ROTATE_SERVO, 0,
+//             pwm.setPWM(ROTATE_SERVO_PIN, 0,
 //                        map(payload[1], 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
 //           }
 //           break;
