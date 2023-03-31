@@ -21,10 +21,10 @@ COROUTINE(closeWingsRoutine) {
 COROUTINE(activatedRoutine) {
   COROUTINE_BEGIN();
   
-  if (isPlayingAudio()) {
-    myDFPlayer.stop();
-    COROUTINE_AWAIT(!isPlayingAudio());
-  }
+//   if (isPlayingAudio()) {
+//     myDFPlayer.stop();
+//     COROUTINE_AWAIT(!isPlayingAudio());
+//   }
   static unsigned long fromTime;
   static unsigned long toTime;
   static int fromAngle;
@@ -32,7 +32,7 @@ COROUTINE(activatedRoutine) {
   static bool closedAtStart;
   closedAtStart = !isOpen();
 
-  myDFPlayer.playFolder(1, random(1, 9));
+//   myDFPlayer.playFolder(1, random(1, 9));
   COROUTINE_AWAIT(isPlayingAudio());
   COROUTINE_AWAIT(!isPlayingAudio());
 
@@ -51,17 +51,17 @@ COROUTINE(activatedRoutine) {
 COROUTINE(searchingRoutine) {
   COROUTINE_BEGIN();
   
-  if(isPlayingAudio()) {
-    myDFPlayer.stop();
-    COROUTINE_AWAIT(!isPlayingAudio());
-  }
+//   if(isPlayingAudio()) {
+//     myDFPlayer.stop();
+//     COROUTINE_AWAIT(!isPlayingAudio());
+//   }
   
   static unsigned long nextAudioClipTime = 0;
 
   while (true) {
     if (millis() > nextAudioClipTime) {
       nextAudioClipTime = millis() + 5000;
-      myDFPlayer.playFolder(7, random(1, 11));
+    //   myDFPlayer.playFolder(7, random(1, 11));
     }
     float t = millis() / 1000.0;
     uint16_t s = t * 255;
@@ -84,19 +84,19 @@ COROUTINE(engagingRoutine) {
     static int toAngle;
 
     fromTime = millis();
-    if (isPlayingAudio()) {
-      myDFPlayer.stop();
-      COROUTINE_AWAIT(!isPlayingAudio());
-    }
+    // if (isPlayingAudio()) {
+    //   myDFPlayer.stop();
+    //   COROUTINE_AWAIT(!isPlayingAudio());
+    // }
 
-    myDFPlayer.playFolder(9, 13);
+    // myDFPlayer.playFolder(9, 13);
     alarm = true;
     fromTime = millis();
     COROUTINE_AWAIT(isPlayingAudio() || (!isPlayingAudio() && millis() > fromTime + 1000));
     COROUTINE_AWAIT(!isPlayingAudio());
     alarm = false;
 
-    myDFPlayer.playFolder(9, 8);
+    // myDFPlayer.playFolder(9, 8);
 
     fromTime = millis();
     toTime = fromTime + 1200;
@@ -130,12 +130,12 @@ COROUTINE(engagingRoutine) {
 
 COROUTINE(targetLostRoutine) {
   COROUTINE_BEGIN();
-  if(isPlayingAudio()) {
-    myDFPlayer.stop();
-    COROUTINE_AWAIT(!isPlayingAudio());
-  }
+//   if(isPlayingAudio()) {
+//     myDFPlayer.stop();
+//     COROUTINE_AWAIT(!isPlayingAudio());
+//   }
   
-  myDFPlayer.playFolder(6, random(1, 8));
+//   myDFPlayer.playFolder(6, random(1, 8));
   COROUTINE_AWAIT(isPlayingAudio());
   COROUTINE_AWAIT(!isPlayingAudio());
 
@@ -151,10 +151,10 @@ COROUTINE(targetLostRoutine) {
 COROUTINE(pickedUpRoutine) {
   COROUTINE_BEGIN();
   
-  if(isPlayingAudio()) {
-    myDFPlayer.stop();
-    COROUTINE_AWAIT(!isPlayingAudio());
-  }
+//   if(isPlayingAudio()) {
+//     myDFPlayer.stop();
+//     COROUTINE_AWAIT(!isPlayingAudio());
+//   }
   
   static unsigned long nextAudioClipTime = 0;
 
@@ -181,12 +181,12 @@ COROUTINE(shutdownRoutine) {
   static unsigned long toTime;;
   static unsigned long t;
 
-  if (isPlayingAudio()) {
-    myDFPlayer.stop();
-    COROUTINE_AWAIT(!isPlayingAudio());
-  }
+//   if (isPlayingAudio()) {
+//     myDFPlayer.stop();
+//     COROUTINE_AWAIT(!isPlayingAudio());
+//   }
 
-  myDFPlayer.playFolder(4, random(1, 9));
+//   myDFPlayer.playFolder(4, random(1, 9));
 
   pwm.setPWM(ROTATE_SERVO, 0, map(90, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
   COROUTINE_DELAY(250);
@@ -254,16 +254,16 @@ COROUTINE(manualEngagingRoutine) {
   COROUTINE_BEGIN();
   if (isOpen()) {
 
-    if (isPlayingAudio()) {
-      myDFPlayer.stop();
-      COROUTINE_AWAIT(!isPlayingAudio());
-    }
+    // if (isPlayingAudio()) {
+    //   myDFPlayer.stop();
+    //   COROUTINE_AWAIT(!isPlayingAudio());
+    // }
     static unsigned long fromTime;
     static unsigned long toTime;
     static int fromAngle;
     static int toAngle;
 
-    myDFPlayer.playFolder(9, 8);
+    // myDFPlayer.playFolder(9, 8);
 
     fromTime = millis();
     toTime = fromTime + 1200;

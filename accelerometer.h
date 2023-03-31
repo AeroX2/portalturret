@@ -1,8 +1,3 @@
-#include <Adafruit_Sensor.h>
-#include <Adafruit_ADXL345_U.h>
-
-Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
-
 const int measurements = 5;
 int currentMeasurement = 0;
 bool accelerometerBuffered = false;
@@ -13,24 +8,40 @@ int32_t smoothX = 0;
 int32_t smoothY = 0;
 int32_t smoothZ = 0;
 
+uint16_t getRawX() {
+  return analogRead(ACCELEROMETER_PIN_X);
+}
+
+uint16_t getRawY() {
+  return analogRead(ACCELEROMETER_PIN_Y);
+}
+
+uint16_t getRawZ() {
+  return analogRead(ACCELEROMETER_PIN_Z);
+}
+
 void setupAccelerometer() {
-  accel.begin();
+  pinMode(ACCELEROMETER_PIN_X, INPUT);
+  pinMode(ACCELEROMETER_PIN_Y, INPUT);
+  pinMode(ACCELEROMETER_PIN_Z, INPUT);
+
+  analogReadResolution(10);
 }
 
 void updateAccelerometer() {
-    sensors_event_t event;
-    accel.getEvent(&event);
+    // sensors_event_t event;
+    // accel.getEvent(&event);
 
     smoothX -= accelX[currentMeasurement];
-    accelX[currentMeasurement] = accel.getX();
+    accelX[currentMeasurement] = getRawX();
     smoothX += accelX[currentMeasurement];
 
     smoothY -= accelY[currentMeasurement];
-    accelY[currentMeasurement] = accel.getY();
+    accelY[currentMeasurement] = getRawY();
     smoothY += accelY[currentMeasurement];
 
     smoothZ -= accelZ[currentMeasurement];
-    accelZ[currentMeasurement] = accel.getZ();
+    accelZ[currentMeasurement] = getRawZ();
     smoothZ += accelZ[currentMeasurement];
 
     currentMeasurement++;
