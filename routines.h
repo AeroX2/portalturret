@@ -1,3 +1,11 @@
+#include <FastLED.h>
+#include <AceRoutine.h>
+#include <Adafruit_PWMServoDriver.h>
+#include "consts.h"
+
+extern bool isOpen();
+extern Adafruit_PWMServoDriver pwm;
+
 COROUTINE(openWingsRoutine) {
   COROUTINE_BEGIN();
   if (!isOpen()) {
@@ -33,8 +41,8 @@ COROUTINE(activatedRoutine) {
   closedAtStart = !isOpen();
 
 //   myDFPlayer.playFolder(1, random(1, 9));
-  COROUTINE_AWAIT(isPlayingAudio());
-  COROUTINE_AWAIT(!isPlayingAudio());
+  // COROUTINE_AWAIT(isPlayingAudio());
+  // COROUTINE_AWAIT(!isPlayingAudio());
 
   if (closedAtStart) {
     if (!isOpen()) {
@@ -90,11 +98,11 @@ COROUTINE(engagingRoutine) {
     // }
 
     // myDFPlayer.playFolder(9, 13);
-    alarm = true;
-    fromTime = millis();
-    COROUTINE_AWAIT(isPlayingAudio() || (!isPlayingAudio() && millis() > fromTime + 1000));
-    COROUTINE_AWAIT(!isPlayingAudio());
-    alarm = false;
+    // alarm = true;
+    // fromTime = millis();
+    // COROUTINE_AWAIT(isPlayingAudio() || (!isPlayingAudio() && millis() > fromTime + 1000));
+    // COROUTINE_AWAIT(!isPlayingAudio());
+    // alarm = false;
 
     // myDFPlayer.playFolder(9, 8);
 
@@ -136,8 +144,8 @@ COROUTINE(targetLostRoutine) {
 //   }
   
 //   myDFPlayer.playFolder(6, random(1, 8));
-  COROUTINE_AWAIT(isPlayingAudio());
-  COROUTINE_AWAIT(!isPlayingAudio());
+  // COROUTINE_AWAIT(isPlayingAudio());
+  // COROUTINE_AWAIT(!isPlayingAudio());
 
   pwm.setPWM(ROTATE_SERVO, 0, map(90, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
   COROUTINE_DELAY(250);
@@ -166,7 +174,7 @@ COROUTINE(pickedUpRoutine) {
     }
     if (millis() > nextAudioClipTime) {
       nextAudioClipTime = millis() + 2500;
-      myDFPlayer.playFolder(5, random(1, 11));
+      // myDFPlayer.playFolder(5, random(1, 11));
     }
     COROUTINE_YIELD();
   }
@@ -204,7 +212,7 @@ COROUTINE(shutdownRoutine) {
     pwm.setPWM(CENTER_LED, 0, map(red, 255, 0, 4096, 0));
     for (int i = 0; i < NUM_LEDS; i++)
     {
-      leds[i] = CRGB(red, 0, 0);
+      // leds[i] = CRGB(red, 0, 0);
       FastLED.show();
     }
     COROUTINE_YIELD();
@@ -238,7 +246,7 @@ COROUTINE(rebootRoutine) {
     pwm.setPWM(CENTER_LED, 0, map(red, 255, 0, 4095, 0));
     for (int i = 0; i < NUM_LEDS; i++)
     {
-      leds[i] = CRGB(red, 0, 0);
+      // leds[i] = CRGB(red, 0, 0);
       FastLED.show();
     }
     COROUTINE_YIELD();

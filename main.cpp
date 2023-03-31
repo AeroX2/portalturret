@@ -1,6 +1,5 @@
 #include "Arduino.h"
 #include "LittleFS.h"
-#include <AceRoutine.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <FastLED.h>
 #include <Wire.h>
@@ -24,10 +23,6 @@ CRGB leds[NUM_LEDS];
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-#define FREQ 50           // one clock is 20 ms
-#define FREQ_MINIMUM 205  // 1ms is 1/20, of 4096
-#define FREQ_MAXIMUM 410  // 2ms is 2/20, of 4096
-
 AsyncWebServer server = AsyncWebServer(80);
 // DNSServer dns;
 // WebSocketsServer webSocket = WebSocketsServer(81);
@@ -36,7 +31,11 @@ AsyncWebServer server = AsyncWebServer(80);
 bool websocketStarted;
 unsigned long nextWebSocketUpdateTime = 0;
 
+int currentMoveSpeed = 0;
 TurretStateBehaviour state;
+
+bool isOpen() { return digitalRead(WING_SWITCH) == HIGH; }
+bool isPlayingAudio() { return analogRead(A0) < 512; }
 
 void preloader(uint8_t led) {
   FastLED.clear();
@@ -74,7 +73,7 @@ void setup() {
   pinMode(WING_SWITCH, INPUT);
   // pinMode(D7, INPUT);
 
-  wasOpen = isOpen();
+  state.wasOpen = isOpen();
 
   preloader(0);
 
@@ -121,19 +120,19 @@ void setup() {
 void loop() {
   // if (!isConnected) return;
 
-  wingsOpen = isOpen();
+  state.wingsOpen = isOpen();
 
   // webSocket.loop();
 
   // stateBehaviour();
 
-  if (currentMoveSpeed > 0 && wasOpen && !wingsOpen) {
+  if (currentMoveSpeed > 0 && state.wasOpen && !state.wingsOpen) {
     currentMoveSpeed = 0;
     pwm.setPWM(WING_SERVO, 0,
                map(STATIONARY_ANGLE, 0, 180, FREQ_MINIMUM, FREQ_MAXIMUM));
   }
 
-  wasOpen = wingsOpen;
+  state.wasOpen = state.wingsOpen;
 
   // if (websocketStarted && millis() > nextWebSocketUpdateTime) {
   //   nextWebSocketUpdateTime = millis() + 30;
@@ -165,9 +164,9 @@ void loop() {
 
 void startWebServer(AsyncWebServer server) {
   server.serveStatic("/", LittleFS, "/");
-  // server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-  //   request->send(LittleFS, "index.html", String(), false, processor);
-  // });
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(LittleFS, "index.html", String(), false, processor);
+  });
 
   server.onNotFound([](AsyncWebServerRequest *request) {
     if (request->method() == HTTP_OPTIONS) {
@@ -180,8 +179,8 @@ void startWebServer(AsyncWebServer server) {
   server.on("/set_mode", HTTP_POST, [](AsyncWebServerRequest *request) {
     if (request->hasParam("mode", true)) {
       AsyncWebParameter *modeParam = request->getParam("mode", true);
-      // currentTurretMode = (TurretMode)modeParam->value().toInt();
-      // currentRotateAngle = 90;
+      state.currentTurretMode = (TurretMode)modeParam->value().toInt();
+      currentRotateAngle = 90;
       request->send(200, "text/html", "State set");
     } else {
       request->send(200, "text/html", "Failed to set mode");
@@ -199,24 +198,24 @@ void startWebServer(AsyncWebServer server) {
     }
   });
 
-  // server.on("/set_open", HTTP_POST, [](AsyncWebServerRequest *request) {
-  //   if (currentTurretMode == TurretMode::Manual) {
-  //     if (request->hasParam("open", true)) {
-  //       AsyncWebParameter *openParam = request->getParam("open", true);
-  //       if (openParam->value().toInt() == 1) {
-  //         setManualState(ManualState::Opening);
-  //         request->send(200, "text/html", "Opening");
-  //       } else {
-  //         setManualState(ManualState::Closing);
-  //         request->send(200, "text/html", "Closing");
-  //       }
-  //     } else {
-  //       request->send(200, "text/html", "No state sent");
-  //     }
-  //   } else {
-  //     request->send(200, "text/html", "Not in Manual mode");
-  //   }
-  // });
+  server.on("/set_open", HTTP_POST, [](AsyncWebServerRequest *request) {
+    if (state.currentTurretMode == TurretMode::Manual) {
+      if (request->hasParam("open", true)) {
+        AsyncWebParameter *openParam = request->getParam("open", true);
+        if (openParam->value().toInt() == 1) {
+          state.setManualState(ManualState::Opening);
+          request->send(200, "text/html", "Opening");
+        } else {
+          state.setManualState(ManualState::Closing);
+          request->send(200, "text/html", "Closing");
+        }
+      } else {
+        request->send(200, "text/html", "No state sent");
+      }
+    } else {
+      request->send(200, "text/html", "Not in Manual mode");
+    }
+  });
 
   server.on("/set_angle", HTTP_POST, [](AsyncWebServerRequest *request) {
     Serial.println("Set angle request");
@@ -225,7 +224,7 @@ void startWebServer(AsyncWebServer server) {
       AsyncWebParameter *servoParam = request->getParam("servo", true);
       int angle = angleParam->value().toInt();
       int servo = servoParam->value().toInt();
-      // state.currentMoveSpeed = angle;
+      currentMoveSpeed = angle;
       if (servo == 0) {
         pwm.setPWM(
             WING_SERVO, 0,
