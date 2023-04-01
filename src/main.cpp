@@ -3,29 +3,24 @@
 
 // Network
 #include <AsyncElegantOTA.h>
-#include <ESPAsync_WiFiManager_Lite.h>
-// #include <WebSocketsServer.h>
-
-// Storage
-// #include "LittleFS.h"
-
-// Routines
-#include <AceRoutine.h>
+#include <ESPAsyncWebServer.h>
+#include <ESPAsync_WiFiManager.h>
+#include <Wifi.h>
 
 // Devices
 #include <FastLED.h>
 // #include "DFRobotDFPlayerMini.h"
 
+// Storage
+#include "LittleFS.h"
+
 #include "consts.h"
 #include "externs.h"
 #include "statebehaviour.h"
+#include "server.h"
+#include "websocket.h"
 
-using namespace ace_routine;
-
-bool websocketStarted;
-unsigned long nextWebSocketUpdateTime = 0;
-
-int currentMoveSpeed = 0;
+AsyncWebServer server = AsyncWebServer(80);
 
 void updateLEDPreloader() {
   int t = floor(millis() / 10);
@@ -38,9 +33,21 @@ void updateLEDPreloader() {
 void setup() {
   Serial.begin(9600);
 
+  if (!LittleFS.begin()) {
+    Serial.println("LittleFS storage failure");
+  }
+
   Serial.println("Trying WifiManager");
-  ESPAsync_WiFiManager_Lite* wifiManager = new ESPAsync_WiFiManager_Lite();
-  wifiManager->begin();
+
+  AsyncDNSServer dnsServer;
+  ESPAsync_WiFiManager ESPAsync_wifiManager(&server, &dnsServer, "portal-turret");
+  ESPAsync_wifiManager.setDebugOutput(true);
+  if (!ESPAsync_wifiManager.startConfigPortal("PortalTurretSetup", "areyoustillthere?")) {
+    Serial.println("Not connected to WiFi but continuing anyway.");
+  } else {
+    Serial.println("WiFi connected...yeey :)");
+    Serial.println(WiFi.localIP());
+  }
 
   FastLED.addLeds<WS2812, RING_LED_PIN, GRB>(leds, NUM_LEDS);
   FastLED.setBrightness(84);
@@ -73,8 +80,8 @@ void setup() {
 
   updateLEDPreloader();
 
-  // startWebServer();
-  // startWebSocket();
+  setupWebserver(&server);
+  webSocket.start();
   accelerometer.setup();
 
   updateLEDPreloader();
@@ -99,11 +106,7 @@ void setup() {
 }
 
 void loop() {
-  // if (!isConnected) return;
-
   state.wingsOpen = isOpen();
-
-  // webSocket.loop();
 
   if (!state.diagnoseMode) {
     state.update();
@@ -164,30 +167,6 @@ void loop() {
 
   state.wasOpen = state.wingsOpen;
 
-  // if (websocketStarted && millis() > nextWebSocketUpdateTime) {
-  //   nextWebSocketUpdateTime = millis() + 30;
-  //   int a = analogRead(A0);
-
-  //   updateAccelerometer();
-
-  //   int16_t x = smoothX / measurements;
-  //   int16_t y = smoothY / measurements;
-  //   int16_t z = smoothZ / measurements;
-
-  //   uint8_t values[] = {
-  //       (x >> 8),
-  //       (x & 0xFF),
-  //       (y >> 8),
-  //       (y & 0xFF),
-  //       (z >> 8),
-  //       (z & 0xFF),
-  //       (!isOpen() ? 1 : 0),
-  //       (digitalRead(D7) == HIGH ? 1 : 0),
-  //       ((uint8_t)(a >> 8)) & 0xFF,
-  //       ((uint8_t)a) & 0xFF,
-  //       (uint8_t)currentState,
-  //       (isPlayingAudio() ? 1 : 0),
-  //   };
-  //   webSocket.broadcastBIN(values, 12);
-  // }
+  accelerometer.update();
+  webSocket.update();
 }

@@ -1,4 +1,10 @@
-#include "routines.h"
+#include <FastLED.h>
+#include <AceRoutine.h>
+#include "consts.h"
+#include "utils.h"
+#include "externs.h"
+
+using namespace ace_routine;
 
 COROUTINE(openWingsRoutine) {
   COROUTINE_BEGIN();
@@ -303,9 +309,6 @@ COROUTINE(manualEngagingRoutine) {
   }
   COROUTINE_END();
 }
-
-int8_t currentRotateDirection = 0;
-int currentRotateAngle = 90;
 
 COROUTINE(manualMovementRoutine) {
   COROUTINE_LOOP() {

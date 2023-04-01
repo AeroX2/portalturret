@@ -5,8 +5,8 @@
 
 //For some reason we need to cache this value, as checking it every loop causes the webserver to freeze.
 //https://github.com/me-no-dev/ESPAsyncWebServer/issues/944
-bool isDetectingMotionCached = false;
-unsigned long lastMotionCheck = 0;
+static bool isDetectingMotionCached = false;
+static unsigned long lastMotionCheck = 0;
 inline bool isDetectingMotion() {
   unsigned long curMillis = millis();
   if (curMillis > lastMotionCheck + 50) {
@@ -16,7 +16,7 @@ inline bool isDetectingMotion() {
   return isDetectingMotionCached;
 }
 
-bool isOpen() { return digitalRead(WING_SWITCH_PIN) == HIGH; }
-bool isPlayingAudio() { return analogRead(A0) < 512; }
+inline bool isOpen() { return digitalRead(WING_SWITCH_PIN) == HIGH; }
+inline bool isPlayingAudio() { return analogRead(A0) < 512; }
 
 #endif

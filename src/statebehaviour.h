@@ -5,8 +5,10 @@
 
 #include "consts.h"
 #include "externs.h"
-#include "routines.h"
 #include "utils.h"
+
+#include <AceRoutine.h>
+using namespace ace_routine;
 
 enum class TurretMode { Automatic = 0, Manual = 1 };
 
@@ -39,14 +41,14 @@ class TurretStateBehaviour {
   void manualRotation(unsigned long deltaTime);
 
   TurretMode currentTurretMode;
+  TurretState currentState = TurretState::Idle;
+
   bool wasOpen;
   bool wingsOpen;
   bool needsSetup;
   int diagnoseAction = -1;
   bool diagnoseMode = false;
-
  private:
-  TurretState currentState = TurretState::Idle;
   ManualState currentManualState = ManualState::Idle;
 
   unsigned long detectTime = 0;
@@ -56,6 +58,6 @@ class TurretStateBehaviour {
   unsigned long lastMovementTime = 0;
 };
 
-TurretStateBehaviour state;
+static TurretStateBehaviour state;
 
 #endif

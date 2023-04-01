@@ -1,5 +1,17 @@
 #include "statebehaviour.h"
 
+EXTERN_COROUTINE(openWingsRoutine);
+EXTERN_COROUTINE(closeWingsRoutine) ;
+EXTERN_COROUTINE(activatedRoutine) ;
+EXTERN_COROUTINE(searchingRoutine) ;
+EXTERN_COROUTINE(engagingRoutine) ;
+EXTERN_COROUTINE(targetLostRoutine); 
+EXTERN_COROUTINE(pickedUpRoutine) ;
+EXTERN_COROUTINE(shutdownRoutine); 
+EXTERN_COROUTINE(rebootRoutine) ;
+EXTERN_COROUTINE(manualEngagingRoutine) ;
+EXTERN_COROUTINE(manualMovementRoutine);
+
 void TurretStateBehaviour::init() { previousTime = millis(); }
 
 void TurretStateBehaviour::update() {

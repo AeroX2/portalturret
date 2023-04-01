@@ -1,27 +1,24 @@
 #ifndef EXTERNS_H
 #define EXTERNS_H
 
-// #include <ESPAsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-// #include <WebSocketsServer.h>
-
 #include <ESP32Servo.h>
 #include <FastLED.h>
 
 #include "accelerometer.h"
 
-bool fullyOpened = false;
+static int currentMoveSpeed = 0;
+static int currentRotateAngle = 90;
+static int8_t currentRotateDirection = 0;
+static bool fullyOpened = false;
 // bool myDFPlayerSetup = false;
 
-AsyncWebServer server = AsyncWebServer(80);
+static Accelerometer accelerometer;
+static Servo wingServo;
+static Servo rotateServo;
 
-Accelerometer accelerometer;
-Servo wingServo;
-Servo rotateServo;
+// static SoftwareSerial mySoftwareSerial(D5, D6);  // RX, TX
+// static DFRobotDFPlayerMini myDFPlayer;
 
-// SoftwareSerial mySoftwareSerial(D5, D6);  // RX, TX
-// DFRobotDFPlayerMini myDFPlayer;
-
-CRGB leds[NUM_LEDS];
+static CRGB leds[NUM_LEDS];
 
 #endif
