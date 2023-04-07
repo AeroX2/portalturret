@@ -10,7 +10,7 @@ static unsigned long lastMotionCheck = 0;
 inline bool isDetectingMotion() {
   unsigned long curMillis = millis();
   if (curMillis > lastMotionCheck + 50) {
-    isDetectingMotionCached = analogRead(MOTION_SENSOR_PIN) > 512;
+    isDetectingMotionCached = digitalRead(MOTION_SENSOR_PIN) == HIGH;
     lastMotionCheck = curMillis;
   }
   return isDetectingMotionCached;

@@ -46,8 +46,6 @@ class TurretStateBehaviour {
   bool wasOpen;
   bool wingsOpen;
   bool needsSetup;
-  int diagnoseAction = -1;
-  bool diagnoseMode = false;
  private:
   ManualState currentManualState = ManualState::Idle;
 

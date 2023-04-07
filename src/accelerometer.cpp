@@ -4,8 +4,6 @@ void Accelerometer::setup() {
   pinMode(ACCELEROMETER_PIN_X, INPUT);
   pinMode(ACCELEROMETER_PIN_Y, INPUT);
   pinMode(ACCELEROMETER_PIN_Z, INPUT);
-
-  analogReadResolution(10);
 }
 
 void Accelerometer::update() {
@@ -37,8 +35,8 @@ uint16_t Accelerometer::getRawY() { return analogRead(ACCELEROMETER_PIN_Y); }
 
 uint16_t Accelerometer::getRawZ() { return analogRead(ACCELEROMETER_PIN_Z); }
 
-float_t Accelerometer::getRealX() { return (smoothZ / ACCEL_MEASUREMENTS * 1 * 1); }
+float_t Accelerometer::getRealX() { return ((smoothZ / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
 
-float_t Accelerometer::getRealY() { return (smoothZ / ACCEL_MEASUREMENTS * 1 * 1); }
+float_t Accelerometer::getRealY() { return ((smoothZ / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
 
-float_t Accelerometer::getRealZ() { return (smoothZ / ACCEL_MEASUREMENTS * 1 * 1); }
+float_t Accelerometer::getRealZ() { return ((smoothZ / ACCEL_MEASUREMENTS) - 2048 / 330.0); }

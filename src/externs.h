@@ -6,6 +6,9 @@
 
 #include "accelerometer.h"
 
+static bool diagnosing = false;
+static int diagnoseAction = -1;
+
 static int currentMoveSpeed = 0;
 static int currentRotateAngle = 90;
 static int8_t currentRotateDirection = 0;

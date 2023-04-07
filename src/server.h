@@ -8,16 +8,11 @@
 #include "externs.h"
 #include "statebehaviour.h"
 
-static String processor(const String &var) {
-  if (var == "IP") "";// return WiFi.localIP().toString();
-  return String();
-}
-
 inline void setupWebserver(AsyncWebServer* server) {
   Serial.println("Start webserver");
   server->serveStatic("/", LittleFS, "/");
   server->on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(LittleFS, "index.html", String(), false, processor);
+    request->send(LittleFS, "/index.html");
   });
 
   server->onNotFound([](AsyncWebServerRequest *request) {
@@ -51,14 +46,14 @@ inline void setupWebserver(AsyncWebServer* server) {
   });
 
   server->on("/diagnose", HTTP_GET, [](AsyncWebServerRequest *request) {
-    state.diagnoseMode = true;
-    request->send(LittleFS, "/diagnose.html", String(), false, processor);
+    diagnosing = true;
+    request->send(LittleFS, "/diagnose.html");
   });
 
   server->on("/diagnose", HTTP_POST, [](AsyncWebServerRequest *request) {
     if (request->hasParam("action", true)) {
       AsyncWebParameter *stateParam = request->getParam("action", true);
-      state.diagnoseAction = stateParam->value().toInt();
+      diagnoseAction = stateParam->value().toInt();
       request->send(200, "text/html", "Diagnose");
     } else {
       request->send(200, "text/html", "No Action Sent");
