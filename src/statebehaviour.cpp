@@ -12,6 +12,8 @@ EXTERN_COROUTINE(rebootRoutine) ;
 EXTERN_COROUTINE(manualEngagingRoutine) ;
 EXTERN_COROUTINE(manualMovementRoutine);
 
+TurretStateBehaviour state;
+
 void TurretStateBehaviour::init() { previousTime = millis(); }
 
 void TurretStateBehaviour::update() {
@@ -46,11 +48,11 @@ void TurretStateBehaviour::update() {
   }
   if (currentTurretMode == TurretMode::Automatic) {
     bool motionDetected = isDetectingMotion();
-    float zMovement = accelerometer.getRealZ();
-    bool pickedUp = accelerometer.buffered && (zMovement < 8 || zMovement > 12);
+    int zMovement = accelerometer.getRealZ() * 1000;
+    bool pickedUp = accelerometer.buffered && (zMovement < 200 || zMovement > 600);
     bool movedAround =
-        accelerometer.buffered && (zMovement < 9.5 || zMovement > 10.5);
-    bool onItsSide = accelerometer.buffered && (zMovement < 5);
+        accelerometer.buffered && (zMovement < 300 || zMovement > 500);
+    bool onItsSide = accelerometer.buffered && (zMovement < 0);
     if (movedAround) {
       lastMovementTime = millis();
     }

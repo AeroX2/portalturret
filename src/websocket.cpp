@@ -54,9 +54,9 @@ void Websocket::update() {
     nextWebSocketUpdateTime = millis() + 30;
     int a = 0; //analogRead(A0);
 
-    float_t x = accelerometer.getRealX();
-    float_t y = accelerometer.getRealY();
-    float_t z = accelerometer.getRealZ();
+    int16_t x = accelerometer.getRealX() * 1000;
+    int16_t y = accelerometer.getRealY() * 1000;
+    int16_t z = accelerometer.getRealZ() * 1000;
 
     uint8_t values[] = {
         (x >> 8),

@@ -56,6 +56,6 @@ class TurretStateBehaviour {
   unsigned long lastMovementTime = 0;
 };
 
-static TurretStateBehaviour state;
+extern TurretStateBehaviour state;
 
 #endif

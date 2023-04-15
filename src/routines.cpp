@@ -192,7 +192,7 @@ COROUTINE(pickedUpRoutine) {
 #ifdef USE_AUDIO
     if (millis() > nextAudioClipTime) {
       nextAudioClipTime = millis() + 2500;
-      // myDFPlayer.playFolder(5, random(1, 11));
+      musicPlayer.playFolder(5, random(1, 11));
     }
 #endif
     COROUTINE_YIELD();

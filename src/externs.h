@@ -20,13 +20,13 @@ static int currentRotateAngle = 90;
 static int8_t currentRotateDirection = 0;
 static bool fullyOpened = false;
 
-static Accelerometer accelerometer;
-static Servo wingServo;
-static Servo rotateServo;
+extern Accelerometer accelerometer;
+extern Servo wingServo;
+extern Servo rotateServo;
 
-static HardwareSerial hardwareSerial(1);
-static DFRobotDFPlayerMini musicPlayer;
+extern HardwareSerial hardwareSerial;
+extern DFRobotDFPlayerMini musicPlayer;
 
-static CRGB leds[NUM_LEDS];
+extern CRGB leds[NUM_LEDS];
 
 #endif
