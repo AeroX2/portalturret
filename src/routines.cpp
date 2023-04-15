@@ -35,7 +35,7 @@ COROUTINE(activatedRoutine) {
 
 #ifdef USE_AUDIO
   if (isPlayingAudio()) {
-    myDFPlayer.stop();
+    musicPlayer.stop();
     COROUTINE_AWAIT(!isPlayingAudio());
   }
 #endif
@@ -48,7 +48,7 @@ COROUTINE(activatedRoutine) {
   closedAtStart = !isOpen();
 
 #ifdef USE_AUDIO
-  myDFPlayer.playFolder(1, random(1, 9));
+  musicPlayer.playFolder(1, random(1, 9));
   COROUTINE_AWAIT(isPlayingAudio());
   COROUTINE_AWAIT(!isPlayingAudio());
 #endif
@@ -71,7 +71,7 @@ COROUTINE(searchingRoutine) {
 
 #ifdef USE_AUDIO
   if (isPlayingAudio()) {
-    myDFPlayer.stop();
+    musicPlayer.stop();
     COROUTINE_AWAIT(!isPlayingAudio());
   }
 #endif
@@ -82,7 +82,7 @@ COROUTINE(searchingRoutine) {
     if (millis() > nextAudioClipTime) {
       nextAudioClipTime = millis() + 5000;
 #ifdef USE_AUDIO
-      myDFPlayer.playFolder(7, random(1, 11));
+      musicPlayer.playFolder(7, random(1, 11));
 #endif
     }
     float t = millis() / 1000.0;
@@ -108,17 +108,17 @@ COROUTINE(engagingRoutine) {
     fromTime = millis();
 #ifdef USE_AUDIO
     if (isPlayingAudio()) {
-      myDFPlayer.stop();
+      musicPlayer.stop();
       COROUTINE_AWAIT(!isPlayingAudio());
     }
-    myDFPlayer.playFolder(9, 13);
+    musicPlayer.playFolder(9, 13);
 #endif
     fromTime = millis();
 #ifdef USE_AUDIO
     COROUTINE_AWAIT(isPlayingAudio() ||
                     (!isPlayingAudio() && millis() > fromTime + 1000));
     COROUTINE_AWAIT(!isPlayingAudio());
-    myDFPlayer.playFolder(9, 8);
+    musicPlayer.playFolder(9, 8);
 #endif
     fromTime = millis();
     toTime = fromTime + 1200;
@@ -151,10 +151,10 @@ COROUTINE(targetLostRoutine) {
 
 #ifdef USE_AUDIO
   if (isPlayingAudio()) {
-    myDFPlayer.stop();
+    musicPlayer.stop();
     COROUTINE_AWAIT(!isPlayingAudio());
   }
-  myDFPlayer.playFolder(6, random(1, 8));
+  musicPlayer.playFolder(6, random(1, 8));
 
   COROUTINE_AWAIT(isPlayingAudio());
   COROUTINE_AWAIT(!isPlayingAudio());
@@ -175,7 +175,7 @@ COROUTINE(pickedUpRoutine) {
   COROUTINE_BEGIN();
 #ifdef USE_AUDIO
   if (isPlayingAudio()) {
-    myDFPlayer.stop();
+    musicPlayer.stop();
     COROUTINE_AWAIT(!isPlayingAudio());
   }
 #endif
@@ -210,11 +210,11 @@ COROUTINE(shutdownRoutine) {
   static unsigned long t;
 #ifdef USE_AUDIO
   if (isPlayingAudio()) {
-    myDFPlayer.stop();
+    musicPlayer.stop();
     COROUTINE_AWAIT(!isPlayingAudio());
   }
 
-  myDFPlayer.playFolder(4, random(1, 9));
+  musicPlayer.playFolder(4, random(1, 9));
 #endif
 
   rotateServo.write(90);
@@ -284,7 +284,7 @@ COROUTINE(manualEngagingRoutine) {
   if (fullyOpened) {
 #ifdef USE_AUDIO
     if (isPlayingAudio()) {
-      myDFPlayer.stop();
+      musicPlayer.stop();
       COROUTINE_AWAIT(!isPlayingAudio());
     }
 #endif
@@ -293,7 +293,7 @@ COROUTINE(manualEngagingRoutine) {
     static int fromAngle;
     static int toAngle;
 #ifdef USE_AUDIO
-    myDFPlayer.playFolder(9, 8);
+    musicPlayer.playFolder(9, 8);
 #endif
     fromTime = millis();
     toTime = fromTime + 1200;

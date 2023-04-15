@@ -87,10 +87,10 @@ void setup() {
   updateLEDPreloader();
 
 #ifdef USE_AUDIO
-  mySoftwareSerial.begin(9600);
+  hardwareSerial.begin(9600, SERIAL_8N1, MUSIC_RX_PIN, MUSIC_TX_PIN);
   delay(200);
-  myDFPlayerSetup = myDFPlayer.begin(mySoftwareSerial);
-  if (myDFPlayerSetup) myDFPlayer.volume(15);
+  bool musicPlayerSetup = musicPlayer.begin(hardwareSerial);
+  if (musicPlayerSetup) musicPlayer.volume(15);
 #endif
 
   updateLEDPreloader();
@@ -156,7 +156,7 @@ void loop() {
 #ifdef USE_AUDIO
       case 6:
         Serial.println("Play sound");
-        myDFPlayer.playFolder(1, random(1, 9));
+        musicPlayer.playFolder(1, random(1, 9));
         break;
 #endif
     }

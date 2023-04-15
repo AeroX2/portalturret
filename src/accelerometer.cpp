@@ -35,8 +35,8 @@ uint16_t Accelerometer::getRawY() { return analogRead(ACCELEROMETER_PIN_Y); }
 
 uint16_t Accelerometer::getRawZ() { return analogRead(ACCELEROMETER_PIN_Z); }
 
-float_t Accelerometer::getRealX() { return ((smoothZ / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
+float_t Accelerometer::getRealX() { return ((smoothX / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
 
-float_t Accelerometer::getRealY() { return ((smoothZ / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
+float_t Accelerometer::getRealY() { return ((smoothY / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
 
 float_t Accelerometer::getRealZ() { return ((smoothZ / ACCEL_MEASUREMENTS) - 2048 / 330.0); }
